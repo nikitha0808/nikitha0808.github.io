@@ -1,0 +1,43 @@
+---
+import Base from '../layouts/Base.astro';
+import Band from '../components/Band.astro';
+import LivingPixelGrid from '../components/LivingPixelGrid.astro';
+import { existsSync } from 'node:fs';
+import { SITE, sectionByKey } from '../lib/sections';
+const s = sectionByKey.about;
+// Put a portrait at public/images/portrait.jpg and the model's-eye view below uses it.
+const portrait = existsSync('public/images/portrait.jpg') ? '/images/portrait.jpg' : '/images/nature/leaf.jpg';
+---
+<Base title="About — Nikitha SR" stain="about">
+  <Band section={s}>Specimen<em>.</em></Band>
+  <div class="wrap record">
+    <dl class="record-card">
+      <div><dt class="mono">Specimen</dt><dd>Nikitha SR</dd></div>
+      <div><dt class="mono">Home ground</dt><dd>Paddy fields and palms</dd></div>
+      <div><dt class="mono">Preferred sky</dt><dd>Monsoon, grey-blue</dd></div>
+      <div><dt class="mono">Studies</dt><dd>Computer vision, multimodal AI, visual representation learning</dd></div>
+      <div><dt class="mono">Makes</dt><dd>Digital and generative pieces, ink and pencil sketches, watercolours</dd></div>
+      <div><dt class="mono">Drawn to</dt><dd>Bio-inspired computing</dd></div>
+      <div><dt class="mono">Status</dt><dd>In progress</dd></div>
+    </dl>
+
+    <div class="prose record-prose">
+      <p class="record-lead">I'm Nikitha: a researcher drawn to intelligent machines, a person who wants to keep making things, and someone who believes a life is too large to fit inside a job title.</p>
+      <p>This website is an attempt to make a little room for all of it: research that asks difficult questions, writing that helps me think, art that makes me look more closely, and small records of a life as it unfolds.</p>
+      <p>Growing up around the natural rhythms and textures of village life is part of how I see. Curiosity can begin anywhere: in a landscape, a conversation, a pattern, or an ordinary afternoon.</p>
+      <p>The thread through all of it is <em>bio-inspired computing</em>: the eye that taught machines about receptive fields, the neuron behind the neural network, the chemistry Turing wrote down to explain a leopard's coat. Every pattern on this site is grown from those equations. Nature, art, and computer vision turn out to be asking the same question: how do you see?</p>
+      {import.meta.env.DEV && <p class="note">This is a starting draft. Keep only what feels true to you, and add your own memories in your own words. (Only you see this note.)</p>}
+      <h2>Say hello</h2>
+      <ul class="reg-links">
+        {SITE.scholar ? <li><a href={SITE.scholar}>Google Scholar</a></li> : import.meta.env.DEV && <li><span>Scholar, to add</span></li>}
+        {SITE.instagram && <li><a href={SITE.instagram}>Instagram</a></li>}
+        {SITE.email ? <li><a href={`mailto:${SITE.email}`}>Email</a></li> : import.meta.env.DEV && <li><span>Email, to add</span></li>}
+      </ul>
+    </div>
+
+    <figure class="observed">
+      <LivingPixelGrid image={portrait} mode="research" size={10} interactive={false} label="A photograph sampled into a 10 by 10 grid of patches, the way a vision model first sees an image" />
+      <figcaption class="mono">Observed by a model: 10 × 10 patches. {import.meta.env.DEV && portrait.includes('leaf') && 'Add public/images/portrait.jpg to put yourself here.'}</figcaption>
+    </figure>
+  </div>
+</Base>

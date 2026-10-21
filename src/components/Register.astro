@@ -1,0 +1,38 @@
+---
+/** A register of papers or posts. */
+import type { ImageMetadata } from 'astro';
+import { Image } from 'astro:assets';
+import { SITE } from '../lib/sections';
+export interface RegisterItem {
+  href: string;
+  title: string;
+  sub?: string;
+  authors?: string[];
+  meta?: string;
+  tag?: string;
+  links?: [string, string][];
+  figure?: ImageMetadata;
+}
+const { items } = Astro.props as { items: RegisterItem[] };
+---
+<ol class="register">
+  {items.map((it) => (
+    <li class:list={['reg-row', it.figure && 'has-figure']}>
+      <div class="reg-main">
+        {it.tag && <span class="mono reg-tag">{it.tag}</span>}
+        <a class="reg-title" href={it.href}>{it.title}</a>
+        {it.authors && it.authors.length > 0 && (
+          <p class="reg-sub">{it.authors.map((a, i) => <>{i > 0 && ', '}{a.includes(SITE.name) ? <strong>{a}</strong> : a}</>)}</p>
+        )}
+        {it.sub && <p class="reg-sub">{it.sub}</p>}
+        {it.links && it.links.length > 0 && <ul class="reg-links">{it.links.map(([label, url]) => <li><a href={url}>{label}</a></li>)}</ul>}
+      </div>
+      {it.meta && <span class="mono reg-meta">{it.meta}</span>}
+      {it.figure && (
+        <a class="reg-figure" href={it.href} tabindex="-1" aria-hidden="true">
+          <Image src={it.figure} alt="" widths={[320, 520].filter((n) => n <= it.figure!.width)} sizes="260px" />
+        </a>
+      )}
+    </li>
+  ))}
+</ol>

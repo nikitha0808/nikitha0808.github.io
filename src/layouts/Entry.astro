@@ -1,0 +1,77 @@
+---
+/** Shared article layout for papers, notes, and life entries. */
+import Base from './Base.astro';
+import Hand from '../components/Hand.astro';
+import { Image } from 'astro:assets';
+import { figureFor } from '../lib/papers';
+import { render } from 'astro:content';
+import { SITE, sectionByKey, formatDate, type SectionKey } from '../lib/sections';
+const { entry, section } = Astro.props as { entry: any; section: SectionKey };
+const s = sectionByKey[section];
+const { Content } = await render(entry);
+const { title, description, category, date, image, alt, venue, authors = [], paper, pdf, code, project, bibtex, tags = [], draft, published, figureCaption, figureAlt } = entry.data;
+const isPaper = section === 'research';
+const words = (entry.body ?? '').split(/\s+/).filter(Boolean).length;
+const minutes = Math.max(1, Math.round(words / 220));
+const when = published ?? (date && formatDate(date, 'long'));
+const links = [['Paper', paper], ['PDF', pdf], ['Code', code], ['Project', project], ['BibTeX', bibtex && '#bibtex']].filter(([, u]) => u) as [string, string][];
+const stain = section === 'life' ? 'blog' : section;
+const figure = isPaper ? figureFor(entry.id) : undefined;
+---
+<Base title={`${title} — Nikitha SR`} description={description} stain={stain}>
+  <article class="doc">
+    <header class="wrap doc-head">
+      <div>
+        <p class="mono doc-path"><a href={s.href}>{s.label}</a>{(venue ?? category) && ` / ${venue ?? category}`}{when && ` / ${when}`}</p>
+        <h1 class="doc-title">{title}</h1>
+        {description && <p class="doc-lead">{description}</p>}
+        {isPaper && authors.length > 0 && (
+          <p class="doc-authors">{authors.map((a: string, i: number) => <>{i > 0 && ', '}{a.includes(SITE.name) ? <strong>{a}</strong> : a}</>)}</p>
+        )}
+        {links.length > 0 && <ul class="reg-links doc-links">{links.map(([label, url]) => <li><a href={url}>{label}</a></li>)}</ul>}
+      </div>
+    </header>
+    {figure && (
+      <figure class="wrap paper-figure">
+        <div class="paper-plate marks">
+          <Image src={figure} alt={figureAlt ?? `Main figure from ${title}`} widths={[800, 1200, 1800, 2400].filter((n) => n <= figure.width)} sizes={`(max-width: ${figure.width}px) 100vw, ${Math.min(figure.width, 1320)}px`} style={`max-width: min(100%, ${figure.width}px)`} loading="eager" />
+        </div>
+        {figureCaption && <figcaption><span class="mono">Figure</span>{figureCaption}</figcaption>}
+      </figure>
+    )}
+    {image && <figure class="wrap doc-figure marks"><img src={image} alt={alt ?? ''} /></figure>}
+    <div class="wrap doc-body">
+      <aside class="doc-meta mono" aria-label="About this entry">
+        <dl>
+          {date && <div><dt>{isPaper ? 'Published' : 'Dated'}</dt><dd><time datetime={date.toISOString().slice(0, 10)}>{when}</time></dd></div>}
+          {venue && <div><dt>Venue</dt><dd>{venue}</dd></div>}
+          {!isPaper && <div><dt>Reading</dt><dd>{minutes} min</dd></div>}
+          {category && <div><dt>Kind</dt><dd>{category}</dd></div>}
+          {tags.length > 0 && <div><dt>Tags</dt><dd>{tags.join(', ')}</dd></div>}
+          {draft && <div><dt>Status</dt><dd>Draft, not published</dd></div>}
+        </dl>
+      </aside>
+      <div class="prose">
+        <Content />
+        {section === 'blog' && <div class="signoff"><Hand name="signature" label="Nikitha"><span class="signoff-text">— Nikitha</span></Hand></div>}
+        {bibtex && (
+          <section id="bibtex" class="bibtex">
+            <div class="bibtex-head"><h2 class="mono">BibTeX</h2><button type="button" class="mono copy" data-copy>Copy</button></div>
+            <pre><code>{bibtex.trim()}</code></pre>
+          </section>
+        )}
+      </div>
+    </div>
+    <nav class="wrap doc-back"><a class="mono" href={s.href}>← Back to {s.label}</a></nav>
+  </article>
+</Base>
+
+<script>
+  document.querySelectorAll<HTMLButtonElement>('[data-copy]').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      const text = btn.closest('.bibtex')?.querySelector('code')?.textContent ?? '';
+      try { await navigator.clipboard.writeText(text); btn.textContent = 'Copied'; } catch { btn.textContent = 'Select & copy'; }
+      setTimeout(() => (btn.textContent = 'Copy'), 1600);
+    });
+  });
+</script>

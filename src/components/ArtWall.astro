@@ -1,0 +1,154 @@
+---
+/**
+ * ArtWall: a salon-style hang. Pieces keep their true shape at mixed sizes (featured ones larger);
+ * hovering reveals the title and the start of the story. Clicking opens a full-screen viewer with
+ * the story alongside; arrow keys, swipe or the buttons move through the collection, and each
+ * piece keeps its own URL. Without JavaScript every piece is an ordinary link to its page.
+ */
+import { Image, getImage } from 'astro:assets';
+import { render } from 'astro:content';
+import type { Artwork } from '../lib/art';
+interface Props { works: Artwork[] }
+const { works } = Astro.props;
+
+// Column span on a 12-column wall: single (3) or double (6) width, so every gap can be filled.
+// Featured and landscape pieces hang double width.
+const span = (w: Artwork) => (w.featured || w.src.height / w.src.width < 0.85 ? 6 : 3);
+
+const items = await Promise.all(works.map(async (w) => ({
+  w,
+  span: span(w),
+  full: (await getImage({ src: w.src, width: Math.min(w.src.width, 2000) })).src,
+  Note: w.note ? (await render(w.note)).Content : null,
+  meta: [w.medium, w.year].filter(Boolean).join(' · '),
+})));
+---
+<div class="salon-wrap" data-salon>
+  <ul class="salon">
+    {items.map(({ w, span, full, Note, meta }, i) => (
+      <li class:list={['salon-item', w.featured && 'is-featured']} style={`--span:${span}`}>
+        <a class="salon-link" href={`/art/${w.slug}/`} data-full={full} data-title={w.title} data-meta={meta} data-alt={w.alt}>
+          <span class="salon-frame">
+            <Image src={w.src} alt={w.alt} widths={[400, 700, 1000, 1400].filter((n) => n <= w.src.width)} sizes={`(max-width: 640px) ${w.featured ? 100 : 50}vw, (max-width: 1020px) ${span >= 6 ? 100 : 50}vw, ${Math.round((span / 12) * 1320)}px`} loading={i < 6 ? 'eager' : 'lazy'} />
+            <span class="salon-hover" aria-hidden="true">
+              <span class="salon-hover-title">{w.title}</span>
+              {w.excerpt && <span class="salon-hover-text">{w.excerpt}</span>}
+            </span>
+          </span>
+          <span class="salon-cap"><span class="salon-title">{w.title}</span>{w.year && <span class="mono">{w.year}</span>}</span>
+        </a>
+        {Note && <template class="salon-note"><Note /></template>}
+      </li>
+    ))}
+  </ul>
+
+  <dialog class="viewer" aria-label="Artwork viewer">
+    <div class="viewer-stage">
+      <img class="viewer-img" alt="" />
+      <button type="button" class="viewer-nav viewer-prev" aria-label="Previous artwork">←</button>
+      <button type="button" class="viewer-nav viewer-next" aria-label="Next artwork">→</button>
+    </div>
+    <aside class="viewer-side">
+      <div class="viewer-top">
+        <span class="mono viewer-count"></span>
+        <button type="button" class="mono viewer-close" autofocus>Close ✕</button>
+      </div>
+      <h2 class="viewer-title"></h2>
+      <p class="mono viewer-meta"></p>
+      <div class="prose viewer-note"></div>
+      <a class="mono viewer-link" href="">This piece's page →</a>
+    </aside>
+  </dialog>
+</div>
+
+<script>
+  const root = document.querySelector<HTMLElement>('[data-salon]');
+  if (root) {
+    const list = root.querySelector<HTMLElement>('.salon')!;
+    const items = [...root.querySelectorAll<HTMLElement>('.salon-item')];
+    const links = items.map((li) => li.querySelector<HTMLAnchorElement>('.salon-link')!);
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // Masonry: each piece spans as many 4px rows as its content is tall, so nothing is cropped.
+    list.classList.add('is-masonry');
+    const fit = (li: HTMLElement) => li.style.setProperty('--rows', String(Math.ceil(li.firstElementChild!.getBoundingClientRect().height / 4)));
+    const ro = new ResizeObserver((entries) => entries.forEach((e) => fit(e.target.parentElement as HTMLElement)));
+    items.forEach((li) => ro.observe(li.firstElementChild!));
+
+    // Viewer
+    const dlg = root.querySelector<HTMLDialogElement>('dialog')!;
+    const img = dlg.querySelector<HTMLImageElement>('.viewer-img')!;
+    const title = dlg.querySelector<HTMLElement>('.viewer-title')!;
+    const meta = dlg.querySelector<HTMLElement>('.viewer-meta')!;
+    const note = dlg.querySelector<HTMLElement>('.viewer-note')!;
+    const count = dlg.querySelector<HTMLElement>('.viewer-count')!;
+    const link = dlg.querySelector<HTMLAnchorElement>('.viewer-link')!;
+    const side = dlg.querySelector<HTMLElement>('.viewer-side')!;
+    let at = 0, pushed = false, fromPop = false;
+
+    const preload = (i: number) => { const a = links[(i + links.length) % links.length]; if (a) new Image().src = a.dataset.full!; };
+
+    function show(i: number) {
+      at = (i + links.length) % links.length;
+      const a = links[at];
+      if (!reduce) dlg.classList.add('is-switching');
+      const next = new Image();
+      next.onload = next.onerror = () => {
+        img.src = a.dataset.full!;
+        img.alt = a.dataset.alt ?? '';
+        requestAnimationFrame(() => dlg.classList.remove('is-switching'));
+      };
+      next.src = a.dataset.full!;
+      title.textContent = a.dataset.title ?? '';
+      meta.textContent = a.dataset.meta ?? '';
+      const tpl = items[at].querySelector<HTMLTemplateElement>('.salon-note');
+      note.replaceChildren(tpl ? tpl.content.cloneNode(true) : document.createTextNode(''));
+      count.textContent = `${at + 1} / ${links.length}`;
+      link.href = a.href;
+      side.scrollTop = 0;
+      preload(at + 1); preload(at - 1);
+      if (pushed) history.replaceState({ art: at }, '', a.getAttribute('href')!);
+    }
+
+    function open(i: number, fromHistory = false) {
+      show(i);
+      if (!dlg.open) dlg.showModal();
+      if (!pushed) {
+        if (!fromHistory) history.pushState({ art: at }, '', links[at].getAttribute('href')!);
+        pushed = true;
+      }
+    }
+
+    links.forEach((a, i) => a.addEventListener('click', (e) => {
+      if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+      e.preventDefault();
+      open(i);
+    }));
+    dlg.querySelector('.viewer-prev')!.addEventListener('click', () => show(at - 1));
+    dlg.querySelector('.viewer-next')!.addEventListener('click', () => show(at + 1));
+    dlg.querySelector('.viewer-close')!.addEventListener('click', () => dlg.close());
+    dlg.addEventListener('click', (e) => { if (e.target === dlg) dlg.close(); });
+    dlg.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowLeft') { e.preventDefault(); show(at - 1); }
+      if (e.key === 'ArrowRight') { e.preventDefault(); show(at + 1); }
+    });
+    // Swipe between pieces on touch screens
+    let x0 = 0, y0 = 0;
+    const stage = dlg.querySelector<HTMLElement>('.viewer-stage')!;
+    stage.addEventListener('touchstart', (e) => { x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; }, { passive: true });
+    stage.addEventListener('touchend', (e) => {
+      const dx = e.changedTouches[0].clientX - x0, dy = e.changedTouches[0].clientY - y0;
+      if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) show(at + (dx < 0 ? 1 : -1));
+    });
+
+    // Back to the wall's URL when the viewer closes; the browser's back button also closes it.
+    dlg.addEventListener('close', () => {
+      links[at].focus({ preventScroll: true });
+      if (pushed && !fromPop) { pushed = false; history.back(); }
+    });
+    window.addEventListener('popstate', () => {
+      if (dlg.open) { fromPop = true; pushed = false; dlg.close(); fromPop = false; }
+      else if (typeof history.state?.art === 'number') open(history.state.art, true);
+    });
+  }
+</script>

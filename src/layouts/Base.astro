@@ -1,0 +1,64 @@
+---
+import '../styles/global.css';
+import Hand from '../components/Hand.astro';
+import Culture from '../components/Culture.astro';
+import type { SpeciesKey } from '../lib/species';
+import { getCollection } from 'astro:content';
+import { SITE, sections, life, isPublished } from '../lib/sections';
+interface Props { title?: string; description?: string; stain?: string; pattern?: boolean }
+const { title = SITE.title, description = 'Nikitha SR: computer vision research, art, and notes. A site grown by reaction–diffusion.', stain = 'home', pattern = true } = Astro.props;
+const path = Astro.url.pathname;
+const hasLife = (await getCollection('life', isPublished)).length > 0;
+// The faint pattern behind each page: the section's own species (Life borrows the Blog's).
+// Pale pigment for the pattern growing in the dark footer.
+const palePigment = { ink: '#cfe0c6', deep: '#eef5ea', wash: '#2f4636' };
+const backdrop: SpeciesKey = ({ research: 'coral', art: 'mitosis', blog: 'maze', about: 'spots' } as Record<string, SpeciesKey>)[stain] ?? 'coral';
+const favicon = `data:image/svg+xml,${encodeURIComponent("<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='#1b2a20'/><circle cx='11' cy='12' r='5' fill='#24456b'/><circle cx='21' cy='19' r='6' fill='#557a1f'/><circle cx='12' cy='23' r='3' fill='#b4532f'/></svg>")}`;
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#e3ede0" />
+    <title>{title}</title>
+    <link rel="icon" href={favicon} />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300..700&family=Nunito:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet" />
+  </head>
+  <body data-stain={stain}>
+    {pattern && <Culture species={backdrop} class="backdrop" strength={0.06} decorative />}
+    <a class="skip" href="#main">Skip to content</a>
+    <header class="bar">
+      <a class="bar-name" href="/" aria-label="Nikitha SR, home"><Hand name="signature" label="Nikitha SR">Nikitha SR</Hand></a>
+      <nav class="bar-nav" aria-label="Main">
+        {sections.map((s) => (
+          <a href={s.href} data-stain={s.key} aria-current={path.startsWith(s.href) ? 'page' : undefined}>{s.label}</a>
+        ))}
+      </nav>
+    </header>
+    <main id="main"><slot /></main>
+    <footer class="foot">
+      <Culture species={backdrop} class="foot-pattern" strength={0.5} colors={palePigment} decorative />
+      <div class="wrap">
+        <blockquote class="foot-quote">
+          <p>“It is suggested that a system of chemical substances, called morphogens, reacting together and diffusing through a tissue, is adequate to account for the main phenomena of morphogenesis.”</p>
+          <cite class="mono">A. M. Turing, The Chemical Basis of Morphogenesis, 1952. Every pattern on this site is grown from his equations.</cite>
+        </blockquote>
+        <div class="foot-grid">
+          <p class="foot-name">Nikitha SR</p>
+          <nav class="foot-nav mono" aria-label="Footer">
+            {sections.map((s) => <a href={s.href}>{s.label}</a>)}
+            {hasLife && <a href={life.href}>{life.label}</a>}
+            {SITE.scholar && <a href={SITE.scholar}>Google Scholar ↗</a>}
+            {SITE.instagram && <a href={SITE.instagram}>Instagram ↗</a>}
+            {SITE.email && <a href={`mailto:${SITE.email}`}>Email ↗</a>}
+          </nav>
+          <p class="mono foot-small">No two visits grow alike.</p>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

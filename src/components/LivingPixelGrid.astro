@@ -1,0 +1,73 @@
+---
+/**
+ * LivingPixelGrid: each square samples a real part of a bundled image.
+ * Nature mode keeps the photograph warm; research mode turns it into a
+ * green-tinted, computer-vision-inspired feature map.
+ */
+const {
+  image = '/images/nature/leaf.jpg',
+  mode = 'nature',
+  label = 'A photograph rendered as a living pixel grid',
+  size = 8,
+  interactive = true,
+  class: className = '',
+} = Astro.props;
+const count = Math.max(4, Math.min(16, Number(size) || 8));
+const cells = Array.from({ length: count * count }, (_, i) => {
+  const row = Math.floor(i / count);
+  const col = i % count;
+  return { id: i, row, col, quiet: ((i * 7 + row * 3) % 11) === 0 };
+});
+---
+<div
+  class:list={['living-grid', mode, interactive && 'is-interactive', className]}
+  role="img"
+  aria-label={label}
+  style={`--grid-size:${count}; --grid-image:url("${image}"); --image-size:${count * 100}%;`}
+>
+  {cells.map((cell) => (
+    <span
+      class:list={['pixel', cell.quiet && 'quiet']}
+      style={`--pos-x:${(cell.col / (count - 1)) * 100}%; --pos-y:${(cell.row / (count - 1)) * 100}%; --delay:${(cell.id % 13) * 12}ms`}
+      aria-hidden="true"
+    />
+  ))}
+</div>
+
+<style>
+  .living-grid {
+    display: grid;
+    grid-template-columns: repeat(var(--grid-size), minmax(0, 1fr));
+    gap: 2px;
+    width: 100%;
+    aspect-ratio: 1;
+    padding: 3px;
+    overflow: hidden;
+    background: rgba(245, 241, 230, .72);
+    border: 1px solid var(--line, #d8d0bf);
+    --veil: rgba(201, 211, 181, .13);
+  }
+  .pixel {
+    display: block;
+    min-width: 0;
+    aspect-ratio: 1;
+    background-image: linear-gradient(var(--veil), var(--veil)), var(--grid-image);
+    background-size: 100% 100%, var(--image-size) var(--image-size);
+    background-position: center, var(--pos-x) var(--pos-y);
+    background-repeat: no-repeat;
+    opacity: .94;
+    transition: transform .28s ease, opacity .28s ease, filter .28s ease;
+    transition-delay: var(--delay);
+  }
+  .pixel.quiet { opacity: .3; }
+  .nature { background: #e8e7d8; border-color: #d2d3bd; }
+  .nature .pixel { --veil: rgba(201, 211, 181, .08); }
+  .research { background: #101a14; border-color: #344a38; gap: 1px; }
+  .research .pixel { --veil: rgba(29, 64, 38, .45); filter: saturate(.72) contrast(1.16); }
+  .research .pixel:nth-child(3n) { filter: grayscale(.55) sepia(.18) hue-rotate(35deg) contrast(1.25); }
+  .research .pixel:nth-child(5n) { --veil: rgba(153, 210, 99, .35); }
+  .is-interactive:hover .pixel { opacity: 1; transform: scale(.96); }
+  .is-interactive:hover .pixel:nth-child(3n) { transform: scale(1.04); filter: saturate(1.15) contrast(1.08); }
+  .is-interactive:hover .pixel.quiet { opacity: .7; }
+  @media (prefers-reduced-motion: reduce) { .pixel { transition: none; } }
+</style>

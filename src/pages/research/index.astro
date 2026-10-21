@@ -1,0 +1,39 @@
+---
+import Base from '../../layouts/Base.astro';
+import Band from '../../components/Band.astro';
+import Register from '../../components/Register.astro';
+import { getCollection } from 'astro:content';
+import { SITE, sectionByKey, byNewest, isPublished } from '../../lib/sections';
+import { figureFor } from '../../lib/papers';
+const s = sectionByKey.research;
+const papers = (await getCollection('research', isPublished)).sort(byNewest);
+const years = [...new Set(papers.map((p) => p.data.date.getUTCFullYear()))];
+const item = (p: (typeof papers)[number]) => ({
+  href: `/research/${p.id}/`,
+  title: p.data.title,
+  authors: p.data.authors,
+  tag: p.data.venue ?? p.data.category,
+  sub: p.data.description,
+  meta: p.data.draft ? 'Draft' : undefined,
+  figure: figureFor(p.id),
+  links: [['Paper', p.data.paper], ['PDF', p.data.pdf], ['Code', p.data.code], ['Project', p.data.project], ['BibTeX', p.data.bibtex && `/research/${p.id}/#bibtex`]].filter(([, u]) => u) as [string, string][],
+});
+---
+<Base title="Research — Nikitha SR" stain="research">
+  <Band section={s} count={`${papers.length} ${papers.length === 1 ? 'paper' : 'papers'}`}>
+    Research<em>.</em>
+  </Band>
+  <div class="wrap section-intro">
+    <p class="intro-text">Computer vision, multimodal models, and visual representation learning: how machines might learn to see, and what living eyes already know.</p>
+    {SITE.scholar && <a class="mono button" href={SITE.scholar}>Google Scholar ↗</a>}
+  </div>
+  <section class="wrap">
+    {years.map((y) => (
+      <div class="year-block">
+        <h2 class="year">{y}</h2>
+        <Register items={papers.filter((p) => p.data.date.getUTCFullYear() === y).map(item)} />
+      </div>
+    ))}
+    {import.meta.env.DEV && <p class="hint">One Markdown file per paper in <code>src/content/research/</code>. <code>selected: true</code> features it on the home page.</p>}
+  </section>
+</Base>

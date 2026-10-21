@@ -1,0 +1,11 @@
+---
+import Entry from '../../layouts/Entry.astro';
+import { getCollection } from 'astro:content';
+import { isPublished } from '../../lib/sections';
+export async function getStaticPaths() {
+  const entries = await getCollection('blog', isPublished);
+  return entries.map((entry) => ({ params: { slug: entry.id }, props: { entry } }));
+}
+const { entry } = Astro.props;
+---
+<Entry entry={entry} section="blog" />

@@ -1,0 +1,30 @@
+---
+import Base from '../../layouts/Base.astro';
+import Band from '../../components/Band.astro';
+import Culture from '../../components/Culture.astro';
+import ArtWall from '../../components/ArtWall.astro';
+import { SITE, sectionByKey } from '../../lib/sections';
+import { getArtworks } from '../../lib/art';
+const s = sectionByKey.art;
+const works = await getArtworks();
+---
+<Base title="Art — Nikitha SR" description="Digital and generative pieces, ink and pencil sketches, and watercolours." stain="art" pattern={false}>
+  <Band section={s} count={`${works.length} ${works.length === 1 ? 'work' : 'works'}`}>Art<em>.</em></Band>
+  <div class="wrap section-intro">
+    <p class="intro-text">Digital and generative pieces, ink and pencil sketches, and watercolours, kept as they're made, newest first. Click any piece to step through the collection, each with the story of what started it.</p>
+    {SITE.instagram && <a class="mono button" href={SITE.instagram}>More on Instagram ↗</a>}
+  </div>
+  <section class="wrap">
+    {works.length > 0 ? (
+      <ArtWall works={works} />
+    ) : (
+      <div class="empty">
+        <Culture species="mitosis" strength={0.45} class="empty-tile" />
+        <div>
+          <p class="empty-title">The dish is empty.</p>
+          <p class="hint">Drop images into <code>src/assets/art/</code>, in <code>digital/</code>, <code>ink/</code> or <code>watercolour/</code>. They appear here newest first. A <code>.md</code> beside an image, with the same name, holds the note on what inspired it.</p>
+        </div>
+      </div>
+    )}
+  </section>
+</Base>

@@ -1,0 +1,84 @@
+---
+import Base from '../layouts/Base.astro';
+import Culture from '../components/Culture.astro';
+import Register from '../components/Register.astro';
+import { Image } from 'astro:assets';
+import { getCollection } from 'astro:content';
+import { sections, byNewest, isPublished, isoDay } from '../lib/sections';
+import { SPECIES } from '../lib/species';
+import { getArtworks } from '../lib/art';
+import { figureFor } from '../lib/papers';
+
+const papers = (await getCollection('research', isPublished)).sort(byNewest);
+const selected = papers.filter((p) => p.data.selected);
+const featured = (selected.length ? selected : papers).slice(0, 4);
+const posts = (await getCollection('blog', isPublished)).sort(byNewest);
+const artworks = await getArtworks();
+
+const paperItems = featured.map((p, i) => ({
+  href: `/research/${p.id}/`, title: p.data.title, authors: p.data.authors, tag: p.data.venue, figure: figureFor(p.id),
+}));
+const postItems = posts.slice(0, 4).map((p) => ({
+  href: `/blog/${p.id}/`, title: p.data.title, sub: p.data.description, tag: p.data.category, meta: isoDay(p.data.date),
+}));
+---
+<Base>
+  <section class="hero">
+    <h1 class="sr-only">Nikitha SR</h1>
+    <Culture species="name" text="NIKITHA SR" grow interactive strength={0.85} class="hero-culture">
+      <span class="hero-fallback">Nikitha SR</span>
+    </Culture>
+    <div class="wrap hero-foot">
+      <p class="hero-intro">Computer vision researcher and artist. I study how machines learn to see, and make pictures of what the living world shows me.</p>
+      <p class="hero-fig">This name wasn’t typed. It grew, a moment ago, from the equations Alan Turing wrote to explain the patterns on living things. Press and drag on it to make it grow.</p>
+    </div>
+  </section>
+
+  <section class="wrap premise">
+    <p class="mono label">Premise</p>
+    {/* Your premise goes here, in your own words. <span>…</span> highlights a phrase. */}
+    <p class="premise-text">In 1952 Alan Turing, who had already imagined the modern computer, wrote down how a leopard might get its spots. <span>Nature computes.</span> My work lives between those two ideas: machines learning to see the world, and the world showing machines how.</p>
+  </section>
+
+  <section class="wrap index-wrap" aria-label="Sections">
+    <p class="mono label">Explore</p>
+    <ol class="index">
+      {sections.map((s) => (
+        <li>
+          <a class="index-row" href={s.href} style={`--c:${SPECIES[s.species].ink}`}>
+            <span class="index-name">{s.label}</span>
+            <span class="index-desc">{s.blurb}</span>
+            <Culture species={s.species} strength={0.45} class="index-tile" />
+          </a>
+        </li>
+      ))}
+    </ol>
+  </section>
+
+  <section class="wrap duo">
+    <div>
+      <div class="duo-head"><p class="mono label">Selected papers</p><a class="mono more" href="/research/">All papers →</a></div>
+      <Register items={paperItems} />
+    </div>
+    <div>
+      <div class="duo-head"><p class="mono label">Latest notes</p><a class="mono more" href="/blog/">All notes →</a></div>
+      {postItems.length ? <Register items={postItems} /> : <p class="hint">No notes yet.</p>}
+    </div>
+  </section>
+
+  <section class="wrap strip">
+    <div class="duo-head"><p class="mono label">From the studio</p>{artworks.length > 0 && <a class="mono more" href="/art/">All works →</a>}</div>
+    {artworks.length > 0 ? (
+      <ul class="strip-list">
+        {artworks.slice(0, 5).map((w) => (
+          <li><a href={`/art/${w.slug}/`} class="strip-item">
+            <span class="marks strip-frame"><Image src={w.src} alt={w.alt} widths={[300, 500].filter((n) => n <= w.src.width)} sizes="(max-width: 640px) 50vw, 20vw" /></span>
+            <span class="mono">{w.title}</span>
+          </a></li>
+        ))}
+      </ul>
+    ) : (
+      import.meta.env.DEV && <p class="hint">The studio is empty for now. Drop images into <code>src/assets/art/</code> and they appear here.</p>
+    )}
+  </section>
+</Base>

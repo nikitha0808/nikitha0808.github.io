@@ -1,0 +1,15 @@
+---
+import Base from '../../layouts/Base.astro';
+import Band from '../../components/Band.astro';
+import Register from '../../components/Register.astro';
+import { getCollection } from 'astro:content';
+import { sectionByKey, byNewest, isoDay, isPublished } from '../../lib/sections';
+const s = sectionByKey.life;
+const entries = (await getCollection('life', isPublished)).sort(byNewest);
+const items = entries.map((e) => ({ href: `/life/${e.id}/`, title: e.data.title, sub: e.data.description, meta: e.data.date ? isoDay(e.data.date) : undefined }));
+---
+<Base title="Life — Nikitha SR" stain="blog">
+  <Band section={s}>Life<em>.</em></Band>
+  <div class="wrap section-intro"><p class="intro-text">Places, books, small rituals, and days that deserve a second look. Personal, but with boundaries.</p></div>
+  <section class="wrap">{items.length > 0 ? <Register items={items} /> : <p class="intro-text empty-note">Nothing here yet.</p>}</section>
+</Base>

@@ -1,0 +1,47 @@
+---
+import Base from '../../layouts/Base.astro';
+import { Image } from 'astro:assets';
+import { render } from 'astro:content';
+import { getArtworks } from '../../lib/art';
+export async function getStaticPaths() {
+  const works = await getArtworks();
+  return works.map((art, i) => ({ params: { slug: art.slug }, props: { art, newer: works[i - 1], older: works[i + 1] } }));
+}
+const { art, newer, older } = Astro.props;
+const Note = art.note ? (await render(art.note)).Content : null;
+---
+<Base title={`${art.title} — Nikitha SR`} description={`${art.title}${art.medium ? `, ${art.medium}` : ''}`} stain="art" pattern={false}>
+  <article class="wrap specimen">
+    <figure class="specimen-plate marks">
+      <Image src={art.src} alt={art.alt} widths={[700, 1100, 1600].filter((n) => n <= art.src.width)} sizes="(max-width: 900px) 100vw, 62vw" loading="eager" />
+      <figcaption class="mono">{art.src.width} × {art.src.height} px</figcaption>
+    </figure>
+    <div class="specimen-text">
+      <p class="mono doc-path"><a href="/art/">Art</a></p>
+      <h1 class="specimen-title">{art.title}</h1>
+      <p class="mono">{[art.medium, art.year].filter(Boolean).join(' · ')}</p>
+
+      <section class="specimen-section">
+        <h2 class="mono">Observation</h2>
+        {Note ? <div class="prose"><Note /></div> : import.meta.env.DEV && <p class="hint">No note yet. Add <code>{art.slug}.md</code> beside the image to say what inspired it.</p>}
+      </section>
+
+      {art.pigments.length > 0 && (
+        <section class="specimen-section">
+          <h2 class="mono">Pigment analysis</h2>
+          <ul class="pigment-table">
+            {art.pigments.map((p) => (
+              <li style={`--c:${p.hex}`} class:list={[p.light && 'is-light']}><span class="mono">{p.hex}</span><span class="mono">{Math.round(p.share * 100)}%</span></li>
+            ))}
+          </ul>
+          <p class="mono specimen-small">Five clusters, k-means on a 32 × 32 reading of the image.</p>
+        </section>
+      )}
+
+      <nav class="specimen-nav mono" aria-label="More artworks">
+        {newer ? <a href={`/art/${newer.slug}/`}>← {newer.title}</a> : <span></span>}
+        {older ? <a href={`/art/${older.slug}/`}>{older.title} →</a> : <span></span>}
+      </nav>
+    </div>
+  </article>
+</Base>

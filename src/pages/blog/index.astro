@@ -1,0 +1,26 @@
+---
+import Base from '../../layouts/Base.astro';
+import Band from '../../components/Band.astro';
+import Register from '../../components/Register.astro';
+import { getCollection } from 'astro:content';
+import { sectionByKey, byNewest, isPublished, isoDay } from '../../lib/sections';
+const s = sectionByKey.blog;
+const posts = (await getCollection('blog', isPublished)).sort(byNewest);
+const items = posts.map((p) => ({
+  href: `/blog/${p.id}/`,
+  title: p.data.title,
+  sub: p.data.description,
+  tag: p.data.draft ? `${p.data.category} · draft` : p.data.category,
+  meta: isoDay(p.data.date),
+}));
+---
+<Base title="Blog — Nikitha SR" description="Notes, essays, and things I needed to write down." stain="blog">
+  <Band section={s} count={`${posts.length} ${posts.length === 1 ? 'note' : 'notes'}`}>Notes<em>.</em></Band>
+  <div class="wrap section-intro">
+    <p class="intro-text">Notes, essays, fragments, and things I needed to write down. Some are finished; some are windows into a moment.</p>
+  </div>
+  <section class="wrap">
+    {items.length > 0 ? <Register items={items} /> : <p class="intro-text empty-note">Notes are on their way.</p>}
+    {import.meta.env.DEV && <p class="hint">Add a Markdown file to <code>src/content/blog/</code>. <code>draft: true</code> keeps it local until it's ready.</p>}
+  </section>
+</Base>
