@@ -4,11 +4,13 @@ import Hand from '../components/Hand.astro';
 import Culture from '../components/Culture.astro';
 import type { SpeciesKey } from '../lib/species';
 import { getCollection } from 'astro:content';
-import { SITE, sections, life, isPublished } from '../lib/sections';
+import { SITE, sections, life, isPublished, contactLinks } from '../lib/sections';
+import { existsSync } from 'node:fs';
 interface Props { title?: string; description?: string; stain?: string; pattern?: boolean }
 const { title = SITE.title, description = 'Nikitha SR: computer vision research, art, and notes. A site grown by reaction–diffusion.', stain = 'home', pattern = true } = Astro.props;
 const path = Astro.url.pathname;
 const hasLife = (await getCollection('life', isPublished)).length > 0;
+const links = contactLinks(existsSync('public' + SITE.cv));
 // The faint pattern behind each page: the section's own species (Life borrows the Blog's).
 // Pale pigment for the pattern growing in the dark footer.
 const palePigment = { ink: '#cfe0c6', deep: '#eef5ea', wash: '#2f4636' };
@@ -52,9 +54,7 @@ const favicon = `data:image/svg+xml,${encodeURIComponent("<svg xmlns='http://www
           <nav class="foot-nav mono" aria-label="Footer">
             {sections.map((s) => <a href={s.href}>{s.label}</a>)}
             {hasLife && <a href={life.href}>{life.label}</a>}
-            {SITE.scholar && <a href={SITE.scholar}>Google Scholar ↗</a>}
-            {SITE.instagram && <a href={SITE.instagram}>Instagram ↗</a>}
-            {SITE.email && <a href={`mailto:${SITE.email}`}>Email ↗</a>}
+            {links.map((l) => <a href={l.href}>{l.label} ↗</a>)}
           </nav>
           <p class="mono foot-small">No two visits grow alike.</p>
         </div>

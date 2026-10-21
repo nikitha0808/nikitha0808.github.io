@@ -294,17 +294,23 @@ img { max-width: 100%; display: block; }
 .signoff .hand-signature { height: 52px; }
 .signoff-text { font-family: var(--head); font-weight: 600; font-size: 1.4rem; }
 
-/* ---------- About: the specimen record ---------- */
-.record { display: grid; grid-template-columns: minmax(0, 21rem) minmax(0, 1fr) minmax(0, 15rem); gap: clamp(24px, 4vw, 56px); align-items: start; padding: clamp(36px, 5vw, 64px) 0 clamp(48px, 7vw, 96px); }
-.record-card { position: sticky; top: 72px; margin: 0; background: var(--white); border: 2px solid var(--ink); }
-.record-card div { padding: 9px 14px 10px; }
-.record-card div + div { border-top: 1px solid var(--ink); }
-.record-card dt { color: var(--muted); }
-.record-card dd { margin: 3px 0 0; font-weight: 600; font-size: 1.05rem; line-height: 1.25; }
-.record-card div:first-child dd { font-family: var(--head); font-weight: 600; font-size: 1.9rem; line-height: 1.05; }
-.record-lead { font-size: 1.45rem; line-height: 1.22; }
-.observed { position: sticky; top: 72px; margin: 0; }
-.observed figcaption { margin-top: 10px; color: var(--muted); }
+/* ---------- About ---------- */
+.record { display: grid; grid-template-columns: minmax(0, 21rem) minmax(0, 44rem); gap: clamp(24px, 4vw, 56px); align-items: start; padding: clamp(36px, 5vw, 64px) 0 clamp(48px, 7vw, 96px); }
+.record--solo { grid-template-columns: minmax(0, 44rem); justify-content: center; }
+.portrait { position: sticky; top: 72px; margin: 0; }
+.portrait img, .portrait-empty { display: block; width: 100%; height: auto; aspect-ratio: 4 / 5; object-fit: cover; border-radius: 14px; }
+.portrait-empty { display: grid; place-items: center; text-align: center; padding: 24px; border: 2px dashed var(--hair); color: var(--muted); }
+.portrait figcaption { margin-top: 12px; color: var(--muted); }
+.record-prose > p:first-child, .record-lead { font-size: 1.45rem; line-height: 1.22; }
+.qa dl { margin: 0; }
+.qa-item { padding: 18px 0; border-bottom: 1px solid var(--hair); }
+.qa-item:first-child { padding-top: 6px; }
+.qa-item dt { font-family: var(--head); font-weight: 500; font-size: 1.2rem; line-height: 1.3; color: var(--ink); }
+.qa-item dd { margin: 8px 0 0; }
+.qa-item dd p { margin: 0 0 .7em; }
+.qa-item dd p:last-child { margin-bottom: 0; }
+.qa-item.is-unanswered dt { color: var(--muted); }
+.qa-item.is-unanswered dd .mono { color: var(--muted); opacity: .8; }
 
 /* ---------- Footer: Turing ---------- */
 .foot { position: relative; overflow: hidden; margin-top: clamp(48px, 7vw, 96px); padding: clamp(48px, 7vw, 96px) 0 24px; background: var(--ink); color: var(--paper); }
@@ -331,8 +337,7 @@ img { max-width: 100%; display: block; }
 
 /* ---------- Responsive ---------- */
 @media (max-width: 1020px) {
-  .record { grid-template-columns: minmax(0, 1fr) minmax(0, 15rem); }
-  .record-prose { grid-column: 1 / -1; grid-row: 2; }
+  .record:not(.record--solo) { grid-template-columns: minmax(0, 17rem) minmax(0, 1fr); }
   .strip-list { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .strip-list li:nth-child(n+4) { display: none; }
 }
@@ -357,10 +362,9 @@ img { max-width: 100%; display: block; }
   .paper-figure figcaption { grid-template-columns: 1fr; gap: 4px; }
   .doc-meta { position: static; }
   .doc-meta dl { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); column-gap: 16px; }
-  .record { grid-template-columns: 1fr; }
-  .record-card, .observed { position: static; }
-  .observed { max-width: 300px; }
-  .empty { grid-template-columns: 1fr; }
+  .record:not(.record--solo), .record--solo { grid-template-columns: 1fr; }
+  .portrait { position: static; max-width: 280px; }
+    .empty { grid-template-columns: 1fr; }
   .foot-grid { grid-template-columns: 1fr; }
   /* no room beside the quote on narrow screens: the pattern becomes a soft band above it */
   .foot { padding-top: 170px; }

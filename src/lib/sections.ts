@@ -5,8 +5,21 @@ export const SITE = {
   title: 'Nikitha SR',
   scholar: 'https://scholar.google.com/citations?user=qH6n4U0AAAAJ&hl=en',
   instagram: 'https://www.instagram.com/tayosdoodle/',
-  email: '', // optional
+  email: '', // e.g. 'you@example.com' (shown on About and in the footer)
+  linkedin: '', // e.g. 'https://www.linkedin.com/in/your-name/'
+  cv: '/cv.pdf', // put your CV at public/cv.pdf; the link appears once the file exists
 };
+
+/** Contact links in display order, skipping any not set up yet. */
+export function contactLinks(hasCv: boolean) {
+  return [
+    SITE.email && { label: 'Email', href: `mailto:${SITE.email}` },
+    SITE.linkedin && { label: 'LinkedIn', href: SITE.linkedin },
+    SITE.scholar && { label: 'Google Scholar', href: SITE.scholar },
+    hasCv && { label: 'CV', href: SITE.cv },
+    SITE.instagram && { label: 'Art on Instagram', href: SITE.instagram },
+  ].filter(Boolean) as { label: string; href: string }[];
+}
 
 export type SectionKey = 'research' | 'art' | 'blog' | 'about' | 'life';
 

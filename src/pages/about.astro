@@ -1,43 +1,55 @@
 ---
 import Base from '../layouts/Base.astro';
 import Band from '../components/Band.astro';
-import LivingPixelGrid from '../components/LivingPixelGrid.astro';
 import { existsSync } from 'node:fs';
-import { SITE, sectionByKey } from '../lib/sections';
+import type { ImageMetadata } from 'astro';
+import { Image } from 'astro:assets';
+import { SITE, sectionByKey, contactLinks } from '../lib/sections';
+// Everything you write lives in src/content/about.md.
+import { Content as AboutText, frontmatter as about } from '../content/about.md';
 const s = sectionByKey.about;
-// Put a portrait at public/images/portrait.jpg and the model's-eye view below uses it.
-const portrait = existsSync('public/images/portrait.jpg') ? '/images/portrait.jpg' : '/images/nature/leaf.jpg';
+// The questionnaire: answered questions are public; unanswered ones show (greyed) only on your machine.
+type QA = { q: string; a?: string };
+const questions = ((about.questions ?? []) as QA[])
+  .map(({ q, a }) => ({ q, paras: String(a ?? '').trim().split(/\n\s*\n/).map((p) => p.trim()).filter(Boolean) }))
+  .filter((x) => x.q && (x.paras.length > 0 || import.meta.env.DEV));
+const links = contactLinks(existsSync('public' + SITE.cv));
+// Your photo: src/assets/portrait.jpg (or .png / .webp). Without one, the text stands alone.
+const portrait = Object.values(import.meta.glob<{ default: ImageMetadata }>('/src/assets/portrait.{jpg,jpeg,png,webp,JPG,JPEG,PNG}', { eager: true }))[0]?.default;
+const showPhoto = Boolean(portrait) || import.meta.env.DEV;
 ---
 <Base title="About — Nikitha SR" stain="about">
-  <Band section={s}>Specimen<em>.</em></Band>
-  <div class="wrap record">
-    <dl class="record-card">
-      <div><dt class="mono">Specimen</dt><dd>Nikitha SR</dd></div>
-      <div><dt class="mono">Home ground</dt><dd>Paddy fields and palms</dd></div>
-      <div><dt class="mono">Preferred sky</dt><dd>Monsoon, grey-blue</dd></div>
-      <div><dt class="mono">Studies</dt><dd>Computer vision, multimodal AI, visual representation learning</dd></div>
-      <div><dt class="mono">Makes</dt><dd>Digital and generative pieces, ink and pencil sketches, watercolours</dd></div>
-      <div><dt class="mono">Drawn to</dt><dd>Bio-inspired computing</dd></div>
-      <div><dt class="mono">Status</dt><dd>In progress</dd></div>
-    </dl>
+  <Band section={s}>{about.title ?? 'About'}<em>.</em></Band>
+  <div class:list={['wrap', 'record', !showPhoto && 'record--solo']}>
+    {showPhoto && (
+      <figure class="portrait">
+        {portrait
+          ? <Image src={portrait} alt={about.portraitAlt || 'Portrait of Nikitha'} widths={[360, 540, 720].filter((n) => n <= portrait.width)} sizes="(max-width: 820px) 70vw, 336px" loading="eager" />
+          : <span class="portrait-empty mono">Your photo goes here<br />src/assets/portrait.jpg<br /><br />Only you see this</span>}
+        {about.portraitCaption && <figcaption class="mono">{about.portraitCaption}</figcaption>}
+      </figure>
+    )}
 
     <div class="prose record-prose">
-      <p class="record-lead">I'm Nikitha: a researcher drawn to intelligent machines, a person who wants to keep making things, and someone who believes a life is too large to fit inside a job title.</p>
-      <p>This website is an attempt to make a little room for all of it: research that asks difficult questions, writing that helps me think, art that makes me look more closely, and small records of a life as it unfolds.</p>
-      <p>Growing up around the natural rhythms and textures of village life is part of how I see. Curiosity can begin anywhere: in a landscape, a conversation, a pattern, or an ordinary afternoon.</p>
-      <p>The thread through all of it is <em>bio-inspired computing</em>: the eye that taught machines about receptive fields, the neuron behind the neural network, the chemistry Turing wrote down to explain a leopard's coat. Every pattern on this site is grown from those equations. Nature, art, and computer vision turn out to be asking the same question: how do you see?</p>
-      {import.meta.env.DEV && <p class="note">This is a starting draft. Keep only what feels true to you, and add your own memories in your own words. (Only you see this note.)</p>}
-      <h2>Say hello</h2>
-      <ul class="reg-links">
-        {SITE.scholar ? <li><a href={SITE.scholar}>Google Scholar</a></li> : import.meta.env.DEV && <li><span>Scholar, to add</span></li>}
-        {SITE.instagram && <li><a href={SITE.instagram}>Instagram</a></li>}
-        {SITE.email ? <li><a href={`mailto:${SITE.email}`}>Email</a></li> : import.meta.env.DEV && <li><span>Email, to add</span></li>}
-      </ul>
+      <AboutText />
+      {questions.length > 0 && (
+        <section class="qa" aria-label={about.questionsTitle ?? 'A few questions'}>
+          <h2>{about.questionsTitle ?? 'A few questions'}</h2>
+          <dl>
+            {questions.map(({ q, paras }) => (
+              <div class:list={['qa-item', paras.length === 0 && 'is-unanswered']}>
+                <dt>{q}</dt>
+                <dd>{paras.length > 0 ? paras.map((p) => <p>{p}</p>) : <p class="mono">Unanswered, only you see this</p>}</dd>
+              </div>
+            ))}
+          </dl>
+        </section>
+      )}
+      <h2>Get in touch</h2>
+      {links.length > 0 ? (
+        <ul class="reg-links">{links.map((l) => <li><a href={l.href}>{l.label}</a></li>)}</ul>
+      ) : import.meta.env.DEV && <p class="hint">Add your email and LinkedIn in src/lib/sections.ts.</p>}
     </div>
 
-    <figure class="observed">
-      <LivingPixelGrid image={portrait} mode="research" size={10} interactive={false} label="A photograph sampled into a 10 by 10 grid of patches, the way a vision model first sees an image" />
-      <figcaption class="mono">Observed by a model: 10 × 10 patches. {import.meta.env.DEV && portrait.includes('leaf') && 'Add public/images/portrait.jpg to put yourself here.'}</figcaption>
-    </figure>
   </div>
 </Base>
