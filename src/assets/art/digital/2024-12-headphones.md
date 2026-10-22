@@ -6,4 +6,4 @@ alt: "Digital painting of a woman with her head tipped back and eyes closed, wea
 featured: true
 ---
 
-Part of my 2024 recap: “Signing off ‘24 with music, art, adventures and a lot of hustle!🎀”
+The one thing that kept me going during my time in Noida was music. I wanted to capture that feeling in a painting. This piece also became the cover art for a song called "Timeless Currents".
