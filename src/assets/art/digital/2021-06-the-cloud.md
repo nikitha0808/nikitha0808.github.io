@@ -11,4 +11,4 @@ Took my sister along this time😄
 
 Prompt: The cloud
 
-_Originally posted on [Instagram](https://www.instagram.com/p/CPqHTU8gLFq/), 2021-06-06._
+_Originally posted on [Instagram](https://www.instagram.com/p/CPqHTU8gLFq/)._

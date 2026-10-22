@@ -11,4 +11,4 @@ Both are equally terrifying”
 
 -Arthur C Clarke
 
-_Originally posted on [Instagram](https://www.instagram.com/p/CMys9NSg83C/), 2021-03-24._
+_Originally posted on [Instagram](https://www.instagram.com/p/CMys9NSg83C/)._

@@ -15,6 +15,8 @@ import { getCollection, type CollectionEntry } from 'astro:content';
 import sharp from 'sharp';
 import path from 'node:path';
 
+export interface Box { x: number; y: number; w: number; h: number }
+
 export interface Pigment { hex: string; share: number; light: boolean }
 
 export interface Artwork {
@@ -27,6 +29,7 @@ export interface Artwork {
   pigments: Pigment[];
   featured: boolean;
   excerpt?: string; // the start of the note, as plain text, for the hover reveal
+  content: Box; // the painted area inside any plain white margins, as fractions of the image
   note?: CollectionEntry<'artnotes'>;
 }
 
@@ -47,6 +50,31 @@ function excerptOf(body?: string) {
   if (text.length <= 150) return text || undefined;
   const cut = text.slice(0, 150);
   return cut.slice(0, cut.lastIndexOf(' ')).replace(/[,;:.!?…-]+$/, '') + '…';
+}
+
+/** Where the painting itself sits, ignoring near-white margins that scans and exports often add. */
+async function contentBox(file: string): Promise<Box> {
+  try {
+    const { data, info } = await sharp(file).greyscale().resize({ width: 480, withoutEnlargement: true }).raw().toBuffer({ resolveWithObject: true });
+    const W = info.width, H = info.height;
+    const plain = (vals: number[]) => {
+      const m = vals.reduce((a, b) => a + b, 0) / vals.length;
+      const sd = Math.sqrt(vals.reduce((a, b) => a + (b - m) ** 2, 0) / vals.length);
+      return m > 235 && sd < 12;
+    };
+    const col = (x: number) => Array.from({ length: Math.ceil(H / 2) }, (_, i) => data[i * 2 * W + x]);
+    const row = (y: number, x0: number, x1: number) => Array.from({ length: Math.ceil((x1 - x0 + 1) / 2) }, (_, i) => data[y * W + x0 + i * 2]);
+    let L = 0, R = W - 1, T = 0, B = H - 1;
+    while (L < W / 3 && plain(col(L))) L++;
+    while (R > (2 * W) / 3 && plain(col(R))) R--;
+    while (T < H / 3 && plain(row(T, L, R))) T++;
+    while (B > (2 * H) / 3 && plain(row(B, L, R))) B--;
+    const pad = 2; // a couple of pixels inside the edge, to drop anti-aliased borders
+    if (L) L += pad; if (R < W - 1) R -= pad; if (T) T += pad; if (B < H - 1) B -= pad;
+    return { x: L / W, y: T / H, w: (R - L + 1) / W, h: (B - T + 1) / H };
+  } catch {
+    return { x: 0, y: 0, w: 1, h: 1 };
+  }
 }
 
 const toHex = (c: number[]) => '#' + c.map((v) => Math.round(v).toString(16).padStart(2, '0')).join('');
@@ -113,6 +141,7 @@ async function build(): Promise<Artwork[]> {
         featured: meta.featured ?? false,
         excerpt: excerptOf(note?.body),
         pigments: await pigments(path.join(process.cwd(), file)),
+        content: await contentBox(path.join(process.cwd(), file)),
       };
     }),
   );

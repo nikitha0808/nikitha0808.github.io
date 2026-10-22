@@ -12,4 +12,4 @@ Shy sun rays peek through the branches. ‘Look up, step out and breathe in!’ 
 
 Thanks for this beautiful poem Gayuuu [@_re_routing](https://www.instagram.com/_re_routing/) 😊❤️
 
-_Originally posted on [Instagram](https://www.instagram.com/p/CkVUX1mpr7N/), 2022-10-30._
+_Originally posted on [Instagram](https://www.instagram.com/p/CkVUX1mpr7N/)._

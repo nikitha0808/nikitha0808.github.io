@@ -12,4 +12,4 @@ I just feel grateful to every doctors sailing through this pandemic, giving hope
 Let’s all stay home and help them in the easiest way we can. It’s the best self help as well. I hope all of us get through this pandemic in good health soon!  
 Take care❤️
 
-_Originally posted on [Instagram](https://www.instagram.com/p/COBILDwAUO9/), 2021-04-23._
+_Originally posted on [Instagram](https://www.instagram.com/p/COBILDwAUO9/)._

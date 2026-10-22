@@ -10,4 +10,4 @@ Sometimes we never know how much we like a hobby but we just get into doing it r
 
 With countless creative blocks, design changes and late nighters, this has by far been the most exhausting but fulfilling piece I have worked on. I will never forget the pitch dark Anjapar with heavy rains and just 1% charge on iPad and my desperation to put together the polygons of her mind😂. Now that the final piece is here, the amount of satisfaction it gives is just indescribable!! It was a joyful experience!😁 Thanks for trusting me with this one [@suryasrini.music](https://www.instagram.com/suryasrini.music/) and wishing you and the team great success!😁❤️
 
-_Originally posted on [Instagram](https://www.instagram.com/p/CmuAPEHysmb/), 2022-12-28._
+_Originally posted on [Instagram](https://www.instagram.com/p/CmuAPEHysmb/)._

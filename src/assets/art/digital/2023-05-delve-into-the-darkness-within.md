@@ -7,4 +7,4 @@ alt: "Dark digital painting of a face emerging from shadow, its skin cracked lik
 
 Delve into the darkness within...
 
-_Originally posted on [Instagram](https://www.instagram.com/p/CsXNXLyysnC/), 2023-05-18._
+_Originally posted on [Instagram](https://www.instagram.com/p/CsXNXLyysnC/)._

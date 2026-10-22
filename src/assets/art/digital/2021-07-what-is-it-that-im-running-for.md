@@ -22,4 +22,4 @@ Sit in their shadow and weave
 Mats outta their withered relatives  
 What is it that I’m running for??
 
-_Originally posted on [Instagram](https://www.instagram.com/p/CR3RFzFI9Zt/), 2021-07-28._
+_Originally posted on [Instagram](https://www.instagram.com/p/CR3RFzFI9Zt/)._

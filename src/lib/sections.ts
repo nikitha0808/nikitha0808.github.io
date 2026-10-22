@@ -5,7 +5,7 @@ export const SITE = {
   title: 'Nikitha SR',
   scholar: 'https://scholar.google.com/citations?user=qH6n4U0AAAAJ&hl=en',
   instagram: 'https://www.instagram.com/tayosdoodle/',
-  email: '', // e.g. 'you@example.com' (shown on About and in the footer)
+  email: 'nikithasr08@gmail.com', // shown on About and in the footer
   linkedin: 'https://www.linkedin.com/in/nikitha-sr-ba2081144/',
   github: '', // e.g. 'https://github.com/your-name' (hidden while empty)
   cv: '/cv.pdf', // put your CV at public/cv.pdf; the link appears once the file exists
@@ -30,9 +30,9 @@ export interface Section { key: SectionKey; label: string; href: string; species
 
 export const sections: Section[] = [
   { key: 'research', label: 'Research', href: '/research/', species: 'coral', blurb: 'Papers on computer vision, multimodal AI, and visual representation learning.' },
-  { key: 'art', label: 'Art', href: '/art/', species: 'mitosis', blurb: 'Digital and generative pieces, ink and pencil sketches, watercolours.' },
+  { key: 'art', label: 'Art', href: '/art/', species: 'mitosis', blurb: 'Curated hand-drawn digital pieces.' },
   { key: 'blog', label: 'Blog', href: '/blog/', species: 'maze', blurb: 'Notes and essays, written to think.' },
-  { key: 'about', label: 'About', href: '/about/', species: 'spots', blurb: 'The specimen record.' },
+  { key: 'about', label: 'About', href: '/about/', species: 'spots', blurb: '' },
 ];
 
 export const life: Section = { key: 'life', label: 'Life', href: '/life/', species: 'maze', blurb: 'Small notes from ordinary days.' };

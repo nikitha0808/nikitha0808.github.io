@@ -7,4 +7,4 @@ alt: "Digital painting of an old man in a white vest and veshti walking hand in 
 
 Grandpa❤️
 
-_Originally posted on [Instagram](https://www.instagram.com/p/CPfmmV1gMDi/), 2021-05-30._
+_Originally posted on [Instagram](https://www.instagram.com/p/CPfmmV1gMDi/)._

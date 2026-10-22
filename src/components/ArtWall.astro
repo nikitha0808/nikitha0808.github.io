@@ -20,7 +20,7 @@ const items = await Promise.all(works.map(async (w) => ({
   span: span(w),
   full: (await getImage({ src: w.src, width: Math.min(w.src.width, 2000) })).src,
   Note: w.note ? (await render(w.note)).Content : null,
-  meta: [w.medium, w.year].filter(Boolean).join(' · '),
+  meta: w.medium ?? '',
 })));
 ---
 <div class="salon-wrap" data-salon>
@@ -28,14 +28,14 @@ const items = await Promise.all(works.map(async (w) => ({
     {items.map(({ w, span, full, Note, meta }, i) => (
       <li class:list={['salon-item', w.featured && 'is-featured']} style={`--span:${span}`}>
         <a class="salon-link" href={`/art/${w.slug}/`} data-full={full} data-title={w.title} data-meta={meta} data-alt={w.alt}>
-          <span class="salon-frame">
+          <span class="salon-frame float">
             <Image src={w.src} alt={w.alt} widths={[400, 700, 1000, 1400].filter((n) => n <= w.src.width)} sizes={`(max-width: 640px) ${w.featured ? 100 : 50}vw, (max-width: 1020px) ${span >= 6 ? 100 : 50}vw, ${Math.round((span / 12) * 1320)}px`} loading={i < 6 ? 'eager' : 'lazy'} />
             <span class="salon-hover" aria-hidden="true">
               <span class="salon-hover-title">{w.title}</span>
               {w.excerpt && <span class="salon-hover-text">{w.excerpt}</span>}
             </span>
           </span>
-          <span class="salon-cap"><span class="salon-title">{w.title}</span>{w.year && <span class="mono">{w.year}</span>}</span>
+          <span class="salon-cap"><span class="salon-title">{w.title}</span></span>
         </a>
         {Note && <template class="salon-note"><Note /></template>}
       </li>

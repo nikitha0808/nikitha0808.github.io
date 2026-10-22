@@ -3,13 +3,11 @@ import '../styles/global.css';
 import Hand from '../components/Hand.astro';
 import Culture from '../components/Culture.astro';
 import type { SpeciesKey } from '../lib/species';
-import { getCollection } from 'astro:content';
-import { SITE, sections, life, isPublished, contactLinks } from '../lib/sections';
+import { SITE, sections, contactLinks } from '../lib/sections';
 import { existsSync } from 'node:fs';
-interface Props { title?: string; description?: string; stain?: string; pattern?: boolean }
-const { title = SITE.title, description = 'Nikitha SR: computer vision research, art, and notes. A site grown by reaction–diffusion.', stain = 'home', pattern = true } = Astro.props;
+interface Props { title?: string; description?: string; stain?: string; pattern?: boolean; footnote?: string; footPattern?: boolean }
+const { title = SITE.title, description = 'Nikitha SR: computer vision research, digital painting, and notes.', stain = 'home', pattern = true, footnote, footPattern = true } = Astro.props;
 const path = Astro.url.pathname;
-const hasLife = (await getCollection('life', isPublished)).length > 0;
 const links = contactLinks(existsSync('public' + SITE.cv));
 // The faint pattern behind each page: the section's own species (Life borrows the Blog's).
 // Pale pigment for the pattern growing in the dark footer.
@@ -31,7 +29,7 @@ const favicon = `data:image/svg+xml,${encodeURIComponent("<svg xmlns='http://www
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300..700&family=Nunito:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet" />
   </head>
   <body data-stain={stain}>
-    {pattern && <Culture species={backdrop} class="backdrop" strength={0.06} decorative />}
+    {pattern && <Culture species={backdrop} class="backdrop" strength={0.1} decorative />}
     <a class="skip" href="#main">Skip to content</a>
     <header class="bar">
       <a class="bar-name" href="/" aria-label="Nikitha SR, home"><Hand name="signature" label="Nikitha SR">Nikitha SR</Hand></a>
@@ -42,21 +40,15 @@ const favicon = `data:image/svg+xml,${encodeURIComponent("<svg xmlns='http://www
       </nav>
     </header>
     <main id="main"><slot /></main>
-    <footer class="foot">
-      <Culture species={backdrop} class="foot-pattern" strength={0.5} colors={palePigment} decorative />
+    <footer class:list={['foot', footPattern && 'foot--pattern']}>
+      {footPattern && <Culture species={backdrop} class="foot-pattern" strength={0.5} colors={palePigment} decorative />}
       <div class="wrap">
-        <blockquote class="foot-quote">
-          <p>“It is suggested that a system of chemical substances, called morphogens, reacting together and diffusing through a tissue, is adequate to account for the main phenomena of morphogenesis.”</p>
-          <cite class="mono">A. M. Turing, The Chemical Basis of Morphogenesis, 1952. Every pattern on this site is grown from his equations.</cite>
-        </blockquote>
         <div class="foot-grid">
+          {footnote && <p class="foot-note">{footnote}</p>}
           <p class="foot-name">Nikitha SR</p>
           <nav class="foot-nav mono" aria-label="Footer">
-            {sections.map((s) => <a href={s.href}>{s.label}</a>)}
-            {hasLife && <a href={life.href}>{life.label}</a>}
             {links.map((l) => <a href={l.href}>{l.label} ↗</a>)}
           </nav>
-          <p class="mono foot-small">No two visits grow alike.</p>
         </div>
       </div>
     </footer>

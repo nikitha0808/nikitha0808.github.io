@@ -8,4 +8,4 @@ featured: true
 
 Part of my 2024 recap on Instagram: “Signing off ‘24 with music, art, adventures and a lot of hustle!🎀”
 
-_Originally posted on [Instagram](https://www.instagram.com/p/DEQKMbczYb0/), 2024-12-31._
+_Originally posted on [Instagram](https://www.instagram.com/p/DEQKMbczYb0/)._

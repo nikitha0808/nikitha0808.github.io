@@ -1,6 +1,6 @@
 /**
- * Gray–Scott reaction–diffusion "species". Turing (1952) showed that two chemicals reacting and
- * diffusing can grow the patterns of living things; these feed (f) and kill (k) rates pick which.
+ * Gray–Scott reaction–diffusion "species": two chemicals reacting and diffusing grow patterns like
+ * those on living things; these feed (f) and kill (k) rates pick which.
  * Each section of the site grows its own species, painted in its own stain.
  */
 export type SpeciesKey = 'name' | 'coral' | 'mitosis' | 'maze' | 'spots';

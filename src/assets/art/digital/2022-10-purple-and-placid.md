@@ -9,4 +9,4 @@ Purple and placid💜
 
 Photo reference [@davidsonyambem](https://www.instagram.com/davidsonyambem/)
 
-_Originally posted on [Instagram](https://www.instagram.com/p/CjfvX-Npuq3/), 2022-10-09._
+_Originally posted on [Instagram](https://www.instagram.com/p/CjfvX-Npuq3/)._

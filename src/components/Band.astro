@@ -1,12 +1,10 @@
 ---
 /** Section header: the section label and title. The section's pattern lies faintly behind the whole page. */
 import type { Section } from '../lib/sections';
-interface Props { section: Section; count?: string }
-const { section, count } = Astro.props;
+interface Props { section: Section }
 ---
 <header class="band">
   <div class="wrap band-text">
-    <p class="mono band-index">{section.label}{count && ` · ${count}`}</p>
     <h1 class="band-title"><slot /></h1>
   </div>
   <slot name="after" />

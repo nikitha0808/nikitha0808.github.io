@@ -51,4 +51,4 @@ Leaving all the bitterness for me.
 While I find little happiness  
 In your ignorance.
 
-_Originally posted on [Instagram](https://www.instagram.com/p/CK8WkUyA80f/), 2021-02-06._
+_Originally posted on [Instagram](https://www.instagram.com/p/CK8WkUyA80f/)._

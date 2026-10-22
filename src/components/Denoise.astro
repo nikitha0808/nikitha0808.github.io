@@ -1,0 +1,164 @@
+---
+/**
+ * Denoise: one of the paintings emerges from noise, the way a diffusion model generates an image.
+ * Shows the painting named by `pick` (its slug), or a random portrait-shaped one each visit. It runs 50 steps of
+ *   x_t = sqrt(ᾱ_t)·x₀ + (1 − sqrt(ᾱ_t))·paper + sqrt(1 − ᾱ_t)·σε   (cosine schedule, one fixed noise sample ε)
+ * from t = 1 to t = 0. The noise is centred on the page colour, mostly brightness grain with a hint of colour,
+ * so the first frame reads as textured paper that blends into the page. Moving the pointer over it stirs noise back in locally,
+ * which then denoises again. Reduced-motion or no-WebGL visitors simply see the painting.
+ */
+import { getImage } from 'astro:assets';
+import type { Artwork } from '../lib/art';
+interface Props { works: Artwork[]; pick?: string; class?: string }
+const { works, pick, class: className } = Astro.props;
+
+// Portrait paintings (about 4:5) only, so every pick fills the same frame.
+const chosen = pick ? works.filter((w) => w.slug === pick) : [];
+const picks = chosen.length ? chosen : works.filter((w) => /painting/i.test(w.medium ?? '') && Math.abs(w.src.height / w.src.width - 1.25) < 0.1);
+const items = await Promise.all(picks.map(async (w) => ({
+  src: (await getImage({ src: w.src, width: Math.min(w.src.width, 1400), format: 'jpg' })).src,
+  title: w.title,
+  year: w.year ?? '',
+  alt: w.alt,
+  href: `/art/${w.slug}/`,
+  ratio: (w.src.width * w.content.w) / (w.src.height * w.content.h),
+  // crop to the painted area; y measured from the bottom, as WebGL textures are
+  crop: [w.content.x, 1 - w.content.y - w.content.h, w.content.w, w.content.h],
+})));
+const first = items[0];
+---
+{first && (
+  <figure class:list={['denoise', className]} data-denoise data-items={JSON.stringify(items)}>
+    <div class="denoise-frame">
+      <canvas aria-hidden="true"></canvas>
+      <noscript><img src={first.src} alt={first.alt} /></noscript>
+    </div>
+  </figure>
+)}
+
+<script>
+  type Item = { src: string; title: string; year: string; alt: string; href: string; ratio: number; crop: [number, number, number, number] };
+  const STEPS = 50, STEP_MS = 48, FW = 40, FH = 50;
+
+  const VS = `attribute vec2 p; varying vec2 uv; void main() { uv = p * .5 + .5; gl_Position = vec4(p, 0., 1.); }`;
+  const FS = `precision highp float;
+  varying vec2 uv;
+  uniform sampler2D img, field;
+  uniform float g, cell;
+  uniform vec2 scale, offset;
+  uniform vec4 crop;
+  uniform vec3 paper;
+  float h(vec2 q) { return fract(sin(dot(q, vec2(12.9898, 78.233))) * 43758.5453); }
+  float gauss(vec2 q) { float a = max(h(q), 1e-4), b = h(q + 17.17); return sqrt(-2. * log(a)) * cos(6.28318 * b); }
+  void main() {
+    vec2 q = floor(gl_FragCoord.xy / cell);
+    vec3 eps = vec3(gauss(q)) * .8 + vec3(gauss(q + 31.7), gauss(q + 71.3), gauss(q + 5.9)) * .22;
+    float t = clamp(max(g, texture2D(field, uv).r), 0., 1.);
+    float ab = pow(cos((t + .008) / 1.008 * 1.5707963), 2.);       // cosine schedule ᾱ(t)
+    vec3 x0 = texture2D(img, crop.xy + (uv * scale + offset) * crop.zw).rgb * 2. - 1.;
+    vec3 bg = paper * 2. - 1.;
+    vec3 x = sqrt(ab) * x0 + (1. - sqrt(ab)) * bg + sqrt(1. - ab) * eps * .34;
+    gl_FragColor = vec4(clamp(x * .5 + .5, 0., 1.), 1.);
+  }`;
+
+  function fallback(frame: HTMLElement, it: Item) {
+    const im = new Image();
+    im.src = it.src; im.alt = it.alt;
+    frame.replaceChildren(im);
+  }
+
+  function init(root: HTMLElement) {
+    const items: Item[] = JSON.parse(root.dataset.items!);
+    const it = items[Math.floor(Math.random() * items.length)];
+    const frame = root.querySelector<HTMLElement>('.denoise-frame')!;
+    const canvas = frame.querySelector('canvas')!;
+    frame.setAttribute('role', 'img');
+    frame.setAttribute('aria-label', it.alt);
+
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const gl = reduce ? null : canvas.getContext('webgl', { antialias: false, preserveDrawingBuffer: false });
+    if (!gl) { fallback(frame, it); root.classList.add('is-done'); return; }
+
+    const sh = (type: number, src: string) => { const s = gl.createShader(type)!; gl.shaderSource(s, src); gl.compileShader(s); return s; };
+    const prog = gl.createProgram()!;
+    gl.attachShader(prog, sh(gl.VERTEX_SHADER, VS)); gl.attachShader(prog, sh(gl.FRAGMENT_SHADER, FS));
+    gl.bindAttribLocation(prog, 0, 'p'); gl.linkProgram(prog);
+    if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) { fallback(frame, it); return; }
+    gl.useProgram(prog);
+    const u = (n: string) => gl.getUniformLocation(prog, n);
+    gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
+    gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+
+    const tex = (unit: number) => {
+      const t = gl.createTexture()!; gl.activeTexture(gl.TEXTURE0 + unit); gl.bindTexture(gl.TEXTURE_2D, t);
+      for (const [k, v] of [[gl.TEXTURE_MIN_FILTER, gl.LINEAR], [gl.TEXTURE_MAG_FILTER, gl.LINEAR], [gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE], [gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE]]) gl.texParameteri(gl.TEXTURE_2D, k, v);
+      return t;
+    };
+    const imgTex = tex(0), fieldTex = tex(1);
+    gl.uniform1i(u('img'), 0); gl.uniform1i(u('field'), 1);
+    const field = new Uint8Array(FW * FH);
+    const upload = () => { gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, fieldTex); gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1); gl.texImage2D(gl.TEXTURE_2D, 0, gl.LUMINANCE, FW, FH, 0, gl.LUMINANCE, gl.UNSIGNED_BYTE, field); };
+    upload();
+
+    const hex = getComputedStyle(document.documentElement).getPropertyValue('--paper').trim() || '#e3ede0';
+    const paperRGB = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255) as [number, number, number];
+    let step = STEPS, last = 0, raf = 0, running = false, ready = false;
+    const fit = () => {
+      const r = canvas.getBoundingClientRect(), dpr = Math.min(window.devicePixelRatio || 1, 2);
+      canvas.width = Math.max(1, Math.round(r.width * dpr)); canvas.height = Math.max(1, Math.round(r.height * dpr));
+      gl.viewport(0, 0, canvas.width, canvas.height);
+      gl.uniform1f(u('cell'), 2 * dpr);
+      const fr = r.width / r.height;               // cover-fit the painting into the frame
+      const sx = it.ratio > fr ? fr / it.ratio : 1, sy = it.ratio > fr ? 1 : it.ratio / fr;
+      gl.uniform2f(u('scale'), sx, sy); gl.uniform2f(u('offset'), (1 - sx) / 2, (1 - sy) / 2);
+      gl.uniform4f(u('crop'), ...it.crop);
+      gl.uniform3f(u('paper'), ...paperRGB);
+    };
+    const draw = () => { gl.uniform1f(u('g'), step / STEPS); gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4); };
+
+    function frameLoop(now: number) {
+      let active = false;
+      if (step > 0) {
+        if (now - last >= STEP_MS) { step--; last = now; }
+        active = true;
+      } else root.classList.add('is-done');
+      let any = false;
+      for (let i = 0; i < field.length; i++) if (field[i]) { field[i] = field[i] * 0.94 | 0; any = true; }
+      if (any) { upload(); active = true; }
+      draw();
+      if (active) raf = requestAnimationFrame(frameLoop); else running = false;
+    }
+    const kick = () => { if (ready && !running) { running = true; raf = requestAnimationFrame(frameLoop); } };
+
+    // Stir: raise the local noise level around the pointer; it decays back to the painting.
+    frame.addEventListener('pointermove', (e) => {
+      if (!ready || (e.pointerType !== 'mouse' && e.buttons === 0)) return;
+      const r = frame.getBoundingClientRect();
+      const cx = ((e.clientX - r.left) / r.width) * FW, cy = (1 - (e.clientY - r.top) / r.height) * FH, R = 4.5;
+      for (let y = Math.max(0, Math.floor(cy - R)); y < Math.min(FH, cy + R); y++)
+        for (let x = Math.max(0, Math.floor(cx - R)); x < Math.min(FW, cx + R); x++) {
+          const d = Math.hypot(x + .5 - cx, y + .5 - cy) / R;
+          if (d < 1) field[y * FW + x] = Math.max(field[y * FW + x], Math.round(255 * 0.8 * (1 - d * d)));
+        }
+      kick();
+    });
+
+    const im = new Image();
+    im.onload = () => {
+      gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, imgTex);
+      gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, im);
+      gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+      fit(); draw(); ready = true; root.classList.add('is-live');
+      // Start denoising once at least half the painting is on screen (it may be below the fold on phones).
+      const io = new IntersectionObserver(([e]) => { if (e.isIntersecting) { io.disconnect(); setTimeout(kick, 350); } }, { threshold: 0.5 });
+      io.observe(frame);
+    };
+    im.onerror = () => fallback(frame, it);
+    im.src = it.src;
+    new ResizeObserver(() => { if (ready) { fit(); draw(); } }).observe(canvas);
+  }
+
+  document.querySelectorAll<HTMLElement>('[data-denoise]').forEach(init);
+</script>
