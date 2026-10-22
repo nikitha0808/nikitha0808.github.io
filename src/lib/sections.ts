@@ -6,12 +6,13 @@ export const SITE = {
   scholar: 'https://scholar.google.com/citations?user=qH6n4U0AAAAJ&hl=en',
   instagram: 'https://www.instagram.com/tayosdoodle/',
   email: '', // e.g. 'you@example.com' (shown on About and in the footer)
-  linkedin: '', // e.g. 'https://www.linkedin.com/in/your-name/'
+  linkedin: 'https://www.linkedin.com/in/nikitha-sr-ba2081144/',
   github: '', // e.g. 'https://github.com/your-name' (hidden while empty)
   cv: '/cv.pdf', // put your CV at public/cv.pdf; the link appears once the file exists
 };
 
-/** Contact links in display order, skipping any not set up yet. `short` is the label in the About page's link row. */
+/** Contact links in display order, skipping any not set up yet. `short` is the label in the About page's link row;
+ *  `row: false` keeps a link out of that row (it still shows in the footer). */
 export function contactLinks(hasCv: boolean) {
   return [
     SITE.email && { label: 'Email', short: 'Email', href: `mailto:${SITE.email}` },
@@ -19,8 +20,8 @@ export function contactLinks(hasCv: boolean) {
     SITE.linkedin && { label: 'LinkedIn', short: 'LinkedIn', href: SITE.linkedin },
     SITE.github && { label: 'GitHub', short: 'GitHub', href: SITE.github },
     hasCv && { label: 'CV', short: 'CV', href: SITE.cv },
-    SITE.instagram && { label: 'Art on Instagram', short: 'Instagram', href: SITE.instagram },
-  ].filter(Boolean) as { label: string; short: string; href: string }[];
+    SITE.instagram && { label: 'Art on Instagram', short: 'Instagram', href: SITE.instagram, row: false },
+  ].filter(Boolean) as { label: string; short: string; href: string; row?: boolean }[];
 }
 
 export type SectionKey = 'research' | 'art' | 'blog' | 'about' | 'life';

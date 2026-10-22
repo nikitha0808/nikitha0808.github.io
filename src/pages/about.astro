@@ -14,7 +14,7 @@ type QA = { q: string; a?: string };
 const questions = ((about.questions ?? []) as QA[])
   .map(({ q, a }) => ({ q, paras: String(a ?? '').trim().split(/\n\s*\n/).map((p) => p.trim()).filter(Boolean) }))
   .filter((x) => x.q && (x.paras.length > 0 || import.meta.env.DEV));
-const links = contactLinks(existsSync('public' + SITE.cv));
+const links = contactLinks(existsSync('public' + SITE.cv)).filter((l) => l.row !== false);
 // The link row sits right after your opening paragraph, so split the text there.
 const html = await aboutFile.compiledContent();
 const cut = html.indexOf('</p>') + 4;
@@ -42,8 +42,7 @@ const showPhoto = Boolean(portrait) || import.meta.env.DEV;
           {links.map((l, i) => <>{i > 0 && <span class="contact-sep" aria-hidden="true">/</span>}<a href={l.href}>{l.short}</a></>)}
         </nav>
       )}
-      {import.meta.env.DEV && (!SITE.email || !SITE.linkedin) && <p class="hint">Add your email and LinkedIn in src/lib/sections.ts and they join this row. (Only you see this.)</p>}
-      <Fragment set:html={rest} />
+            <Fragment set:html={rest} />
       {questions.length > 0 && (
         <section class="qa" aria-label={about.questionsTitle ?? 'A few questions'}>
           <h2>{about.questionsTitle ?? 'A few questions'}</h2>
