@@ -101,8 +101,11 @@ const first = items[0];
     const upload = () => { gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, fieldTex); gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1); gl.texImage2D(gl.TEXTURE_2D, 0, gl.LUMINANCE, FW, FH, 0, gl.LUMINANCE, gl.UNSIGNED_BYTE, field); };
     upload();
 
-    const hex = getComputedStyle(document.documentElement).getPropertyValue('--paper').trim() || '#e3ede0';
-    const paperRGB = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255) as [number, number, number];
+    const readPaper = () => {
+      const hex = getComputedStyle(document.documentElement).getPropertyValue('--paper').trim() || '#e3ede0';
+      return [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255) as [number, number, number];
+    };
+    let paperRGB = readPaper();
     let step = STEPS, last = 0, raf = 0, running = false, ready = false;
     const fit = () => {
       const r = canvas.getBoundingClientRect(), dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -158,6 +161,7 @@ const first = items[0];
     im.onerror = () => fallback(frame, it);
     im.src = it.src;
     new ResizeObserver(() => { if (ready) { fit(); draw(); } }).observe(canvas);
+    window.addEventListener('themechange', () => { paperRGB = readPaper(); if (ready) { gl.uniform3f(u('paper'), ...paperRGB); draw(); } });
   }
 
   document.querySelectorAll<HTMLElement>('[data-denoise]').forEach(init);
