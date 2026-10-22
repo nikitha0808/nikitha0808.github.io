@@ -15,7 +15,7 @@
 title: "About"
 
 # YOUR PHOTO on the left. Save it as src/assets/portrait.jpg (or .png / .webp).
-# A portrait shape works best (taller than wide). Until it's there, the live page shows only your text.
+# It's shown as a circle, so a square crop of your face works best. Without one, the live page shows only your text.
 portraitCaption: "Bangalore, 2026"       # a short line under the photo; "" for none
 portraitAlt: "Portrait of Nikitha"       # describes the photo for screen readers
 
@@ -79,16 +79,16 @@ questions:
 
 I'm Nikitha, a computer vision researcher based in Bangalore.
 
-I studied at [IIT Madras](https://www.iitm.ac.in/), then joined [Adobe Research](https://research.adobe.com/), where I worked on computer vision and multimodal AI: [parsing faces](/research/2023-fp-liif-face-segmentation/), [understanding documents](/research/2024-dopta-document-layout/), [giving multimodal models sharper eyes](/research/2025-hire-high-resolution-features/), and [asking how much we can trust the benchmarks we use to evaluate them](/research/2025-vqa-benchmark-variance/). Now I'm at [Sarvam AI](https://www.sarvam.ai/), working on image generation. I want to help build a model that is truly flawless, and the first step is finding and clearly defining the flaws in today's best models.
+I love working on hard research problems. When I spend enough time with a problem and read widely around it, the papers start to connect, and finding those missing links is the creative part of research for me. Most of my work has been on efficiency: getting vision and multimodal models to do more with less, without giving up accuracy. I also enjoy developing an intuition for how AI models work, and why they behave the way they do.
 
-I love working on hard research problems. When I spend enough time with a problem and read widely around it, the papers start to connect, and finding those missing links is the creative part of research for me. I also enjoy optimisation, whether that means making models faster or making them perform better. And I like building an intuition for how AI models are built and why they behave the way they do.
+I studied Biological Engineering and Data Science at [IIT Madras](https://www.iitm.ac.in/). My first research was on modelling biological networks. It taught me a lot, but I found that I connected far more with problems I could see, so when a chance came to work on computer vision, I took it. I then joined Adobe's [Media and Data Science Research (MDSR) Lab](https://research.adobe.com/), where I worked on [a wide range of research problems](/research/), from [parsing faces](/research/2023-fp-liif-face-segmentation/) to [building layout generators that design the way people would](/research/2026-designsense-layout-preferences/). Along the way I became known as the person who questions established research, because I find it hard not to notice what's missing. Now I'm at [Sarvam AI](https://www.sarvam.ai/), working on image generation, and I'm excited to see what's coming.
 
-I've never quite found the words for why I love computer vision, but I know the feeling: it makes me happy when an algorithm creates a beautiful image, or truly understands one. It's tied to why I make art digitally: I like making machines create good visual work, and I look for beauty in everything around me. That's a big part of why I'm loving Bangalore so far.
+I've never quite found the words for why I love computer vision, but I know the feeling: it makes me happy when an algorithm creates a beautiful image, or truly understands one. It's tied to why I paint digitally: I like making machines create good visual work, and I look for beauty in everything around me. That's also a big part of why I'm loving Bangalore so far (okay, at least Indiranagar!).
 
 ## Why this site
 
-I've always been a quiet person. I tend to work on my own, and since I was a child I've taken the harder route to most things, whether it's a project or simply getting my point across.
+I've always been a quiet person, and I do my best thinking on my own. Since I was a child, I've been drawn to the harder route, both in my projects and in how I express myself.
 
-That makes my work a little ironic. Research runs on communication: writing papers, giving talks, explaining ideas. Yet the way I've always said things best is through painting.
+That makes my work a little ironic. Research runs on communication: writing papers, giving talks, explaining ideas. Yet the way I've always said things best is through paintings.
 
-This site is my attempt to bridge that gap. It's a way of putting myself out into the world, and a place to practise saying things in words.
+This site is my attempt to bridge that gap. It's a way of putting myself out into the world, and a place to practise saying things in words (with a little help from AI, of course).
