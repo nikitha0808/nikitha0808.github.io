@@ -50,5 +50,3 @@ I see you enjoy all the sweets
 Leaving all the bitterness for me.  
 While I find little happiness  
 In your ignorance.
-
-_Originally posted on [Instagram](https://www.instagram.com/p/CK8WkUyA80f/)._

@@ -10,5 +10,3 @@ Or we are not.
 Both are equally terrifying”
 
 -Arthur C Clarke
-
-_Originally posted on [Instagram](https://www.instagram.com/p/CMys9NSg83C/)._

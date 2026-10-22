@@ -7,6 +7,4 @@ alt: "Digital painting of a riverside promenade at twilight, a lit bridge reflec
 
 Purple and placid💜
 
-Photo reference [@davidsonyambem](https://www.instagram.com/davidsonyambem/)
-
-_Originally posted on [Instagram](https://www.instagram.com/p/CjfvX-Npuq3/)._
+Photo reference @davidsonyambem

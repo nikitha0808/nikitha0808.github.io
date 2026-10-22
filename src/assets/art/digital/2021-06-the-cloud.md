@@ -10,5 +10,3 @@ Tell me how much you love the sunset and the clouds?!!
 Took my sister along this time😄
 
 Prompt: The cloud
-
-_Originally posted on [Instagram](https://www.instagram.com/p/CPqHTU8gLFq/)._

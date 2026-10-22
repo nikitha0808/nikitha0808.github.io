@@ -41,7 +41,7 @@ const titleFrom = (slug: string) => {
   return words ? words[0].toUpperCase() + words.slice(1) : 'Untitled';
 };
 const key = (p: string) => p.replace(/^\.?\//, '').replace(/\.[^./]+$/, '');
-/** The note's opening as plain text: no links, emphasis or the Instagram credit line, cut at ~150 characters. */
+/** The note's opening as plain text: no links or emphasis, cut at ~150 characters. */
 function excerptOf(body?: string) {
   if (!body) return undefined;
   const text = body

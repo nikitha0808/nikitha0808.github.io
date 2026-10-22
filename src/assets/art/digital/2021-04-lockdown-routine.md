@@ -9,6 +9,4 @@ Moms are everyday inspiration. Like how can they relentlessly do all the works a
 
 Since lockdown I get a fair share of work too! How’s it for you?!
 
-This is a comic I made for [@fmc_weekend](https://www.instagram.com/fmc_weekend/) to illustrate online classes and lockdown routine in a funny way!
-
-_Originally posted on [Instagram](https://www.instagram.com/p/CNr4qkpgtor/)._
+This is a comic I made for @fmc_weekend to illustrate online classes and lockdown routine in a funny way!

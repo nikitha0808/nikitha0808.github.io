@@ -4,7 +4,6 @@ export const SITE = {
   name: 'Nikitha', // author names containing this are emphasised in author lists
   title: 'Nikitha SR',
   scholar: 'https://scholar.google.com/citations?user=qH6n4U0AAAAJ&hl=en',
-  instagram: 'https://www.instagram.com/tayosdoodle/',
   email: 'nikithasr08@gmail.com', // shown on About and in the footer
   linkedin: 'https://www.linkedin.com/in/nikitha-sr-ba2081144/',
   github: '', // e.g. 'https://github.com/your-name' (hidden while empty)
@@ -20,7 +19,6 @@ export function contactLinks(hasCv: boolean) {
     SITE.linkedin && { label: 'LinkedIn', short: 'LinkedIn', href: SITE.linkedin },
     SITE.github && { label: 'GitHub', short: 'GitHub', href: SITE.github },
     hasCv && { label: 'CV', short: 'CV', href: SITE.cv },
-    SITE.instagram && { label: 'Art on Instagram', short: 'Instagram', href: SITE.instagram, row: false },
   ].filter(Boolean) as { label: string; short: string; href: string; row?: boolean }[];
 }
 
